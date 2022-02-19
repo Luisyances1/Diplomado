@@ -1,5 +1,5 @@
 mkdir -p ~ /.streamlit/
-eco  "
+echo  "
 [tema]
 base='oscuro'
 colorprimario='#4b64ff'
