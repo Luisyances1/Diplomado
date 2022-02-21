@@ -191,7 +191,7 @@ fig = px.pie(datos,
              title='Categorias especiales ',
             color_discrete_sequence=px.colors.sequential.RdBu)
 st.plotly_chart(fig)
-st.markdown("el grafico anterior nos permite tener en una vision mas general de algunas caracteristicas que han crecido, como lo son los tipos de cajas las MT (cajas mecanicas)
-            son la mayor caracterisca de los autos actualmente, para los datos de importacion podemos observar que en su mayoria los no son importados (label 0),
+st.markdown("el grafico anterior nos permite tener en una vision mas general de algunas caracteristicas que han crecido, como lo son los tipos de cajas las MT cajas mecanicas
+            son la mayor caracterisca de los autos actualmente, para los datos de importacion podemos observar que en su mayoria los no son importados label 0,
             de esta misma forma podemos observa la lista de paises que importan vehiculos y cual de ellos es el que mas importa vehiculos al pais, 
             tambien se puede observar que en su mayoria lo vehiculos son a gasolina, pero los vehiculos a diesel son una porcion bastante considerable dentro de nuestro dataset ")
