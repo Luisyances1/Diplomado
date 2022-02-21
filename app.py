@@ -137,12 +137,14 @@ opcionPie = st.sidebar.selectbox(label="Selector de opcion para grafico Pie",
 # Main Body
 st.header("Web app para el Diplomado de Python")
 st.markdown("---")
-#col1, col2 = st.columns(2)
-#col1.metric(
-#    value=f'{pd.read_json(prediccion)["precio"][0]} ',
-#    label="Predicción probabilidad renuncia",
-#)
-
+url_api = "https://apidiplomado.herokuapp.com/predict"
+data = str(request_data).replace("'", '"')
+prediccion = requests.post(url=url_api, data=data).text
+st.metric(
+    value=f'{pd.read_json(prediccion)["precio"][0]}',
+    label="Prediccion de precio",
+         )
+st.markdown("---")
 st.write(datos)
 
 @st.cache
