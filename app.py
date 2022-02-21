@@ -121,7 +121,8 @@ request_data= [
        "Fechas":Fechas
    }
 ]
-
+opcionPie = st.sidebar.selectbox(label="Selector de Categorias especiales", 
+                                 options =["TipoCaja","Nacionalidad","Combustible","Importado"])
 #url_api="http://0.0.0.0:8000/predict"
 #url_api = "https://apidiplomado.herokuapp.com/docs#/default/predict_df_predict_post"
 url_api = "https://apidiplomado.herokuapp.com/predict"
@@ -129,24 +130,14 @@ data = str(request_data).replace("'", '"')
 prediccion = requests.post(url=url_api, data=data).text
 
 st.sidebar.markdown("---")
-
-st.metric(
+col1,col2,col3=st.columns(3)
+col2.metric(
     value=f'{pd.read_json(prediccion)["precio"][0]}',
     label="Prediccion de precio",
          )
-opcionPie = st.sidebar.selectbox(label="Selector de Categorias especiales", 
-                                 options =["TipoCaja","Nacionalidad","Combustible","Importado"])
-
-
 # Main Body
 st.header("Web app para el Diplomado de Python")
 st.markdown("---")
-#col1, col2 = st.columns(2)
-#col1.metric(
-#    value=f'{pd.read_json(prediccion)["precio"][0]} ',
-#    label="Predicción probabilidad renuncia",
-#)
-
 st.write(datos)
 
 @st.cache
@@ -160,7 +151,6 @@ def graficobarras(datos):
         color_discrete_sequence=["gray","black"],
         x ="Clase",
         y ="valor_modelo"
-#        ,facet_col="left",
     )
     return fig
 varfig = graficobarras(datos)
@@ -168,14 +158,29 @@ st.plotly_chart(
     varfig , 
     use_container_width=True,  
 )
-def comparadorPrecios (datos,valor: int):
-    df = datos[(datos['valor_modelo'] <= valor)]
-    return df
 st.markdown("---")
-st.markdown("# Consultar valor historico")
-referencia_precio = st.number_input("Ingrese un valor a buscar")
+def graficoValor(datos):
+    
+    fig = px.histogram(
+        datos["Marca"],
+        x ="Marca",
+    )
+    return fig
+varfig = graficoValor(datos)
+st.plotly_chart( 
+    varfig , 
+    use_container_width=True,  
+)
+st.markdown("La marca chevrolet es la que mas tiene presencia en la totalidad de vehiculos")
+st.markdown("---")
+def comparadorModelos (df, valor: int):
+    df = datos[(datos['Fechas'] == valor)]
+    return df
+st.markdown("# Consultar valor historico por modelo")
+st.markdown(" las fechas registradas van desde 1970 hasta 2018")
+modelo = st.number_input("Fecha del modelo",min_value=1970, max_value=2018)                     
 if st.button("Aceptar"):
-    st.dataframe(comparadorPrecios(datos,referencia_precio))
+    st.dataframe(comparadorModelos(datos,modelo))
     st.success("Valores encontrados")
 
 st.markdown("---")
