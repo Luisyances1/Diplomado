@@ -3,52 +3,31 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(layout="wide")
-
+st.set_page_config(layout="wide",
+                   page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/800px-Python-logo-notext.svg.png",
+                   page_title = "Web app")
 
 @st.cache
 def cargar_datos(filename: str):
     return pd.read_csv(filename)
 
 datos = cargar_datos("VehiculosImputed.csv")
-#@st.cache
-#def plot_heatmap(df, x, y):
-#    data_heatmap = (
-#        df.reset_index()[[x, y, "index"]]
-#        .groupby([x, y])
-#        .count()
-#        .reset_index()
-#        .pivot(x, y, "index")
-#        .fillna(0)
-#    )
-#    fig = px.imshow(
-#        data_heatmap,
-#        color_continuous_scale="Blues",
-#        aspect="auto",
-#        title=f"Heatmap {x} vs {y}",
-#    )
-#    fig.update_traces(
-#       hovertemplate="<b><i>"
-#      + y
-#     + "</i></b>: %{y} <br><b><i>"
-#    + x
-#   + "</i></b>: %{x} <br><b><i>Conteo interacción variables</i></b>: %{z}<extra></extra>"
-#)
-#return fig
-
-
-#satisfaction level quedo como cilindraje
-#average_montly_hours quedo como potencia
 
 # Sidebar
 st.sidebar.markdown("# Selectores de datos para estimador de precio")
 st.sidebar.markdown("---")
-Cilindraje = st.sidebar.slider(
-    label="Cilindraje", min_value=0, max_value=15950, value=8000
-)
+Bcpp = st.sidebar.slider(
+    label = "Bcpp", min_value=1800, max_value=2187500)
 Potencia = st.sidebar.slider(
     label="Potencia", min_value=0, max_value=662, value=300
 )
+Cilindraje = st.sidebar.slider(
+    label="Cilindraje", min_value=0, max_value=15950, value=8000
+)
+PesoCategoria = st.sidebar.slider(
+      label= "PesoCategoria", min_value=0, max_value=2, value=1
+)
+
 Clase = st.sidebar.selectbox(
     label="Clase", options=["BUS / BUSETA / MICROBUS", "CAMION", "CARROTANQUE", "CHASIS",
        "FURGON", "REMOLCADOR", "VOLQUETA", "CAMPERO", "AUTOMOVIL",
@@ -127,20 +106,28 @@ Marca = st.sidebar.selectbox(
        "DFAC", "SMART", "MV AGUSTA", "BAIC", "LMX", "CHANGAN", "DONGBEN",
        "YUEJIN-NAVECO", "HERO", "VICTORY", "VAISAND", "FUSO", "DAF",
        "STÄRKER", "SCOMADI", "HAOJUE", "DS"])
-request_data = [
+Fechas = st.sidebar.selectbox(                           
+    label="Fechas",options=["1970","1971","1972","1973","1974","1975","1976","1977","1978","1979","1980","1981","1982","1983","1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"])
+
+request_data= [
    {
-       "Cilindraje": Cilindraje ,
-       "Potencia": Potencia,
-       "Clase": Clase,
-       "Marca":Marca
+       "Bcpp":Bcpp,
+       "Potencia":Potencia,
+       "Cilindraje":Cilindraje,
+       "PesoCategoria":PesoCategoria,
+       "Marca":Marca,
+       "Clase":Clase,
+       "Fechas":Fechas
    }
 ]
 
-#url_api='http://127.0.0.1:8000/predict'
-#url_api = "http://0.0.0.0:8000/predict"
-#data = str(request_data).replace("'", '"')
-#prediccion = requests.post(url=url_api, data=data).text
+url_api="http://0.0.0.0:8000/predict"
+#url_api = "https://apidiplomado.herokuapp.com/docs#/default/predict_df_predict_post"
+#url_api = "https://apidiplomado.herokuapp.com/docs#/"
+data = str(request_data).replace("'", '"')
+prediccion = requests.post(url=url_api, data=data).text
 st.sidebar.markdown("---")
+
 opciones1 = list(datos.columns)
 eje_x_heatmap1 = st.sidebar.selectbox(label="Heatmap X", options=opciones1)
 opciones2 = opciones1.copy()
@@ -148,48 +135,43 @@ opciones2.pop(opciones1.index(eje_x_heatmap1))
 eje_y_heatmap1 = st.sidebar.selectbox(label="Heatmap Y", options=opciones2)
 
 # Main Body
-st.header("Web app para el Diplomado de Python: Ejemplo Employee Turnover")
+st.header("Web app para el Diplomado de Python")
 st.markdown("---")
-#col1, col2 = st.columns(2)
-#col1.metric(
-#    value=f'{100*pd.read_json(prediccion)["employee_left_proba"][0]} % ',
-#    label="Predicción probabilidad renuncia",
-#)
-#col2.write("Esto quedaría en la columna de la derecha")
-#st.markdown("---")
+col1, col2 = st.columns(2)
+col1.metric(
+    value=f'{pd.read_json(prediccion)["precio"][0]} ',
+    label="Predicción probabilidad renuncia",
+)
 
-# Display an interactive table
 st.write(datos)
-#scatter_1 = plot_heatmap(df=datos, x=eje_x_heatmap1, y=eje_y_heatmap1)
 
-#col1, col2 = st.columns(2)
-
-#col1.plotly_chart(scatter_1, use_container_width=True)
-#
-
-st.plotly_chart(
-#    fig  =  px . bar ( datos_canada ,  x = 'año' ,  y = 'pop' ) 
-    px.bar(
+@st.cache
+def graficobarras(datos):
+    
+    fig = px.bar(
         datos.groupby(["Importado", "Clase"])
         .count()
         .reset_index()
         .sort_values(by="valor_modelo", ascending=False),
-        color_discrete_sequence=["gray"],
+        color_discrete_sequence=["gray","black"],
         x ="Clase",
         y ="valor_modelo"
 #        ,facet_col="left",
-    ),
-    use_container_width=True, 
+    )
+    return fig
+varfig = graficobarras(datos)
+st.plotly_chart(
+#    fig  =  px . bar ( datos_canada ,  x = 'año' ,  y = 'pop' ) 
+    varfig , 
+    use_container_width=True,  
 )
-def comparadorPrecios (valor: int):
-    df = pd.DataFrame()
+def comparadorPrecios (datos,valor: int):
     df = datos[(datos['valor_modelo'] <= valor)]
-    return df
+    return datos
 st.markdown("---")
-st.markdown("# ¿Tiene algun presupuesto?")
-referencia_precio = st.number_input("¡Busque vehiculos por su presupuesto!")
+st.markdown("# ¿Tiene algún presupuesto?")
+referencia_precio = st.number_input("¿De cuanto es su presupuesto?")
 if st.button("Aceptar"):
     st.dataframe(comparadorPrecios(referencia_precio))
     st.success("Valores encontrados")
 st.markdown("---")
-
