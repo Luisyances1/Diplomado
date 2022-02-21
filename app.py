@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
-import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide",
                    page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/800px-Python-logo-notext.svg.png",
@@ -15,6 +14,7 @@ def cargar_datos(filename: str):
 datos = cargar_datos("VehiculosImputed.csv")
 
 # Sidebar
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/800px-Python-logo-notext.svg.png")
 st.sidebar.markdown("# Selectores de datos para estimador de precio")
 st.sidebar.markdown("---")
 Bcpp = st.sidebar.slider(
@@ -124,27 +124,29 @@ request_data= [
 
 #url_api="http://0.0.0.0:8000/predict"
 #url_api = "https://apidiplomado.herokuapp.com/docs#/default/predict_df_predict_post"
-#url_api = "https://apidiplomado.herokuapp.com/docs#/"
-#data = str(request_data).replace("'", '"')
-#prediccion = requests.post(url=url_api, data=data).text
+url_api = "https://apidiplomado.herokuapp.com/predict"
+data = str(request_data).replace("'", '"')
+prediccion = requests.post(url=url_api, data=data).text
+
 st.sidebar.markdown("---")
 
-
-opcionPie = st.sidebar.selectbox(label="Selector de opcion para grafico Pie", 
-                                 options =["TipoCaja","Importado","Combustible"])
+st.metric(
+    value=f'{pd.read_json(prediccion)["precio"][0]}',
+    label="Prediccion de precio",
+         )
+opcionPie = st.sidebar.selectbox(label="Selector de Categorias especiales", 
+                                 options =["TipoCaja","Nacionalidad","Combustible","Importado"])
 
 
 # Main Body
 st.header("Web app para el Diplomado de Python")
 st.markdown("---")
-url_api = "https://apidiplomado.herokuapp.com/predict"
-data = str(request_data).replace("'", '"')
-prediccion = requests.post(url=url_api, data=data).text
-st.metric(
-    value=f'{pd.read_json(prediccion)["precio"][0]}',
-    label="Prediccion de precio",
-         )
-st.markdown("---")
+#col1, col2 = st.columns(2)
+#col1.metric(
+#    value=f'{pd.read_json(prediccion)["precio"][0]} ',
+#    label="Predicción probabilidad renuncia",
+#)
+
 st.write(datos)
 
 @st.cache
@@ -162,31 +164,34 @@ def graficobarras(datos):
     )
     return fig
 varfig = graficobarras(datos)
-st.plotly_chart(
-#    fig  =  px . bar ( datos_canada ,  x = 'año' ,  y = 'pop' ) 
+st.plotly_chart( 
     varfig , 
     use_container_width=True,  
 )
 def comparadorPrecios (datos,valor: int):
     df = datos[(datos['valor_modelo'] <= valor)]
-    return datos
+    return df
 st.markdown("---")
-st.markdown("# ¿Tiene algún presupuesto?")
-referencia_precio = st.number_input("¿De cuanto es su presupuesto?")
+st.markdown("# Consultar valor historico")
+referencia_precio = st.number_input("Ingrese un valor a buscar")
 if st.button("Aceptar"):
-    st.dataframe(comparadorPrecios(referencia_precio))
+    st.dataframe(comparadorPrecios(datos,referencia_precio))
     st.success("Valores encontrados")
 
 st.markdown("---")
-st.markdown("# Grafico pie ")
+st.markdown("# Grafico 2")
 @st.cache
 def pieFig(df,x):
     sizes = datos[x].value_counts().tolist()
     labels = datos[x].unique()
     return [sizes,labels]
-
-fig1, ax1 = plt.subplots()
-ax1.pie(pieFig(datos,opcionPie)[0],colors=["red","yellow","orange"], labels=pieFig(datos,opcionPie)[1], autopct='%0.1f%%',
-        shadow=True, startangle=90, rotatelabels=True,radius=5)
-ax1.axis('equal')
-st.pyplot(fig1, use_container_width=True)
+fig = px.pie(datos, 
+             values=pieFig(datos,opcionPie)[0], 
+             names=pieFig(datos,opcionPie)[1], 
+             title='Categorias especiales ',
+            color_discrete_sequence=px.colors.sequential.RdBu)
+st.plotly_chart(fig)
+st.markdown("el grafico anterior nos permite tener en una vision mas general de algunas caracteristicas que han crecido, como lo son los tipos de cajas las MT (cajas mecanicas)
+            son la mayor caracterisca de los autos actualmente, para los datos de importacion podemos observar que en su mayoria los no son importados (label 0),
+            de esta misma forma podemos observa la lista de paises que importan vehiculos y cual de ellos es el que mas importa vehiculos al pais, 
+            tambien se puede observar que en su mayoria lo vehiculos son a gasolina, pero los vehiculos a diesel son una porcion bastante considerable dentro de nuestro dataset ")
