@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
+import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide",
                    page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/800px-Python-logo-notext.svg.png",
@@ -121,27 +122,26 @@ request_data= [
    }
 ]
 
-url_api="http://0.0.0.0:8000/predict"
+#url_api="http://0.0.0.0:8000/predict"
 #url_api = "https://apidiplomado.herokuapp.com/docs#/default/predict_df_predict_post"
 #url_api = "https://apidiplomado.herokuapp.com/docs#/"
-data = str(request_data).replace("'", '"')
-prediccion = requests.post(url=url_api, data=data).text
+#data = str(request_data).replace("'", '"')
+#prediccion = requests.post(url=url_api, data=data).text
 st.sidebar.markdown("---")
 
-opciones1 = list(datos.columns)
-eje_x_heatmap1 = st.sidebar.selectbox(label="Heatmap X", options=opciones1)
-opciones2 = opciones1.copy()
-opciones2.pop(opciones1.index(eje_x_heatmap1))
-eje_y_heatmap1 = st.sidebar.selectbox(label="Heatmap Y", options=opciones2)
+
+opcionPie = st.sidebar.selectbox(label="Selector de opcion para grafico Pie", 
+                                 options =["TipoCaja","Importado","Combustible"])
+
 
 # Main Body
 st.header("Web app para el Diplomado de Python")
 st.markdown("---")
-col1, col2 = st.columns(2)
-col1.metric(
-    value=f'{pd.read_json(prediccion)["precio"][0]} ',
-    label="Predicción probabilidad renuncia",
-)
+#col1, col2 = st.columns(2)
+#col1.metric(
+#    value=f'{pd.read_json(prediccion)["precio"][0]} ',
+#    label="Predicción probabilidad renuncia",
+#)
 
 st.write(datos)
 
@@ -174,4 +174,17 @@ referencia_precio = st.number_input("¿De cuanto es su presupuesto?")
 if st.button("Aceptar"):
     st.dataframe(comparadorPrecios(referencia_precio))
     st.success("Valores encontrados")
+
 st.markdown("---")
+st.markdown("# Grafico pie ")
+@st.cache
+def pieFig(df,x):
+    sizes = datos[x].value_counts().tolist()
+    labels = datos[x].unique()
+    return [sizes,labels]
+
+fig1, ax1 = plt.subplots()
+ax1.pie(pieFig(datos,opcionPie)[0],colors=["red","yellow","orange"], labels=pieFig(datos,opcionPie)[1], autopct='%0.1f%%',
+        shadow=True, startangle=90, rotatelabels=True,radius=5)
+ax1.axis('equal')
+st.pyplot(fig1, use_container_width=True)
