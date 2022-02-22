@@ -123,8 +123,6 @@ request_data= [
 ]
 opcionPie = st.sidebar.selectbox(label="Selector de Categorias especiales", 
                                  options =["TipoCaja","Nacionalidad","Combustible","Importado"])
-#url_api="http://0.0.0.0:8000/predict"
-#url_api = "https://apidiplomado.herokuapp.com/docs#/default/predict_df_predict_post"
 url_api = "https://apidiplomado.herokuapp.com/predict"
 data = str(request_data).replace("'", '"')
 prediccion = requests.post(url=url_api, data=data).text
@@ -164,6 +162,7 @@ def graficoValor(datos):
     fig = px.histogram(
         datos["Marca"],
         x ="Marca",
+      color_discrete_sequence=["violet"]
     )
     return fig
 varfig = graficoValor(datos)
