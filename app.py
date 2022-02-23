@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
-
+#756,626
 st.set_page_config(layout="wide",
                    page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/800px-Python-logo-notext.svg.png",
                    page_title = "Web app")
@@ -107,7 +107,7 @@ Marca = st.sidebar.selectbox(
        "DFAC", "SMART", "MV AGUSTA", "BAIC", "LMX", "CHANGAN", "DONGBEN",
        "YUEJIN-NAVECO", "HERO", "VICTORY", "VAISAND", "FUSO", "DAF",
        "STÄRKER", "SCOMADI", "HAOJUE", "DS"])
-Fechas = st.sidebar.selectbox(                           
+Fechas= st.sidebar.selectbox(                           
     label="Fechas",options=["1970","1971","1972","1973","1974","1975","1976","1977","1978","1979","1980","1981","1982","1983","1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"])
 
 request_data= [
@@ -123,21 +123,26 @@ request_data= [
 ]
 opcionPie = st.sidebar.selectbox(label="Selector de Categorias especiales", 
                                  options =["TipoCaja","Nacionalidad","Combustible","Importado"])
+#url_api="http://0.0.0.0:8000/predict"
+#url_api = "https://apidiplomado.herokuapp.com/docs#/default/predict_df_predict_post"
 url_api = "https://apidiplomado.herokuapp.com/predict"
 data = str(request_data).replace("'", '"')
 prediccion = requests.post(url=url_api, data=data).text
-
+st.markdown("# Bienvenido")
+st.markdown("En la parte izquierda se encuentran los selectores de caracteristicas, para calcular el precio de un vehiculo en su año de salida al mercado, basado en la guia de valores fasecolda")
 st.sidebar.markdown("---")
-col1,col2,col3=st.columns(3)
-col2.metric(
-    value=f'{pd.read_json(prediccion)["precio"][0]}',
-    label="Prediccion de precio",
+col1,col2=st.columns(2)
+col1.metric(
+    value=f'{pd.read_json(prediccion)["precio"][0]}00',
+    label="Prediccion de precio de salidad para el año: ",
          )
+col2.write(Fechas)
 # Main Body
-st.header("Web app para el Diplomado de Python")
+st.header("Datos de referecia utilizado para la prediccion de precios")
 st.markdown("---")
 st.write(datos)
-
+st.markdown("---")
+st.markdown("Figura 1.")
 @st.cache
 def graficobarras(datos):
     
@@ -156,13 +161,14 @@ st.plotly_chart(
     varfig , 
     use_container_width=True,  
 )
+st.markdown("La anterior grafica nos muestra la clase de vehiculos con mayor presencia en los datos estudiados")
 st.markdown("---")
+st.markdown("Figura 2")
 def graficoValor(datos):
-    
     fig = px.histogram(
         datos["Marca"],
         x ="Marca",
-      color_discrete_sequence=["violet"]
+        color_discrete_sequence=["violet"]
     )
     return fig
 varfig = graficoValor(datos)
@@ -175,15 +181,15 @@ st.markdown("---")
 def comparadorModelos (df, valor: int):
     df = datos[(datos['Fechas'] == valor)]
     return df
-st.markdown("# Consultar valor historico por modelo")
-st.markdown(" las fechas registradas van desde 1970 hasta 2018")
-modelo = st.number_input("Fecha del modelo",min_value=1970, max_value=2018)                     
+st.markdown("# Consulta por fechas")
+st.markdown("Consulte los vehiculos presentados en una fecha especifica")
+modelo = st.number_input("Las fechas van desde 1970 hasta 2018",min_value=1970, max_value=2018)                     
 if st.button("Aceptar"):
     st.dataframe(comparadorModelos(datos,modelo))
     st.success("Valores encontrados")
 
 st.markdown("---")
-st.markdown("# Grafico 2")
+st.markdown("#Grafico 2")
 @st.cache
 def pieFig(df,x):
     sizes = datos[x].value_counts().tolist()
