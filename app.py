@@ -142,12 +142,13 @@ st.header("Datos de referecia utilizado para la prediccion de precios")
 st.markdown("---")
 st.write(datos)
 st.markdown("---")
+
 st.markdown("Figura 1.")
 @st.cache
 def graficobarras(datos):
     
     fig = px.bar(
-        datos.groupby(["Importado", "Clase"])
+        datos.groupby(["Clase"])
         .count()
         .reset_index()
         .sort_values(by="valor_modelo", ascending=False),
@@ -161,22 +162,99 @@ st.plotly_chart(
     varfig , 
     use_container_width=True,  
 )
-st.markdown("La anterior grafica nos muestra la clase de vehiculos con mayor presencia en los datos estudiados")
+st.markdown("La anterior grafica nos muestra el valor por CLASE para cada vehiculos en todas sus referencias")
 st.markdown("---")
+st.write("Explorar valores por marcas para todos los vehiculos")
+M = st.selectbox(
+    label = "Marcas", options=["ALEKO", "AMERICAN MOTOR", "AUTECO", "AROCARPATI", "ASIA", "AUDI",
+       "AUTOCAR", "BMW", "DINA", "BUICK", "CAGIVA", "CADILLAC", "CORCEL",
+       "CHEVROLET", "CHRYSLER", "CITROEN", "DACIA", "DAEWOO", "DAIHATSU",
+       "DERBI", "DODGE", "DUCATI", "FIAT", "FREIGHTLINER", "FORD",
+       "MOTO GUZZI", "HYUNDAI", "HARLEY DAVIDSON", "HONDA", "IFA",
+       "INTERNATIONAL", "HINO", "ISUZU", "JAWA", "JAGUAR", "JEEP",
+       "KAMAZ", "KENWORTH", "KAWASAKI", "KIA", "KRAZ", "LADA", "MARMON",
+       "LANCIA", "HYOSUNG", "LAND ROVER", "MORINI", "MACK", "MAZDA",
+       "MERCEDES BENZ", "MINI", "MERCURY", "MG", "MITSUBISHI", "NISSAN",
+       "PEGASO", "OLTCIT", "PEUGEOT", "PAZ", "PIAGGIO", "BEIJING",
+       "PONTIAC", "PORSCHE", "RENAULT", "SCANIA", "SEAT", "SSANGYONG",
+       "SISU", "SKODA", "SUBARU", "SUZUKI", "TAVRIA", "TOYOTA", "UAZ",
+       "VOLKSWAGEN", "VOLGA", "VOLVO", "WESTERN STAR", "YUGO", "YAMAHA",
+       "TATA", "KYMCO", "IVECO", "AGRALE", "CHANA", "CHERY", "HAFEI",
+       "RENNO", "SAICWULING", "CHANGHE", "BYD", "HALEI", "JAC", "TITANIA",
+       "ZHONGXING", "AMPLE", "GLOW", "VERUCCI", "JIALING", "GERLAP",
+       "DAYANG", "JINCHENG", "GEELY", "INFINITI", "JINGLONG", "UTILITY",
+       "KEEWAY", "KYOTO", "FIRENZE", "SERVICHASIS", "HONLEI", "OPEL",
+       "TRAILER SANDER", "TECNIPESADOS", "KAZUKI", "UNITED MOTORS",
+       "PIONEER", "TALLER OVEL", "TRACTEC", "AYCO", "XINKAI",
+       "DFSK/DFM/DFZL", "YINGANG", "SIGMA", "TECNICAR", "APRILIA",
+       "RAFAEL ESCOBAR", "SHINERAY", "TODO TRAIL", "QINGQI",
+       "GOLDEN DRAGON", "USW MOTORS", "STELL TRAILERS", "XIANFENG",
+       "TRAYCOL", "JMC", "AKT", "MANETRA", "JINFENG", "BRP CAN AM",
+       "GREAT WALL MOTOR", "INDUCAM JC", "HEIL", "WABASH NATIONAL",
+       "FALCON", "PETERBILT", "MAXMOTOR", "KTM", "GOMOTOR", "CANACOL",
+       "GERMAR GMG", "BORGO", "TALLERES MILTON", "SUKIDA", "ZAHAV",
+       "ESTEMCO", "NITRO", "ITANREM", "SERVI VOLCOS", "CMC",
+       "TRAILERS DE SANTANDER", "DUST", "FOTON", "CEDAL", "VENTO",
+       "XINGYUE", "ROMARCO", "FAMERS", "INTRAILER", "FEGAM",
+       "TRAILERS TULUA", "MECANICOS UNIDOS", "IMECOL", "RHINO",
+       "GREAT DANE", "TONGKO", "TRAYVOCOL", "HIDROAMERICA", "METAL INOX",
+       "YAKIMA", "WANXIN", "SERVITRACK", "IMEVA", "GAZ", "MORENO",
+       "INDUSTRIAS BERMEO", "CONSTRUTRAILER", "INCALLES COLOMBIA",
+       "GUERCAR", "EAGLE TRUCK", "TRAILERS DE ANTIOQUIA", "BISON TRUCK",
+       "KAYAK", "INCA FRUEHAUF", "PRISMA", "PANAMERICANA", "ZOTYE",
+       "EL TRAILERO", "ORLTRAILER", "INOX MEC", "METALCONT", "HUMMER",
+       "AUPACO", "INCOLTRAILERS", "IMCOLTRANS", "LIFAN", "TECNOTRAILERS",
+       "INDUROC", "APONCAR", "TALLERES CESPEDES", "HIGER",
+       "CARROCERIAS MODERNA", "MD BIKES", "TALLER T F S", "SAAB", "SANYA",
+       "EL SOL", "TIANMA", "MTK", "AMC", "WCR", "ZQ MOTORS", "ALCAR",
+       "ACB", "SUKYAMA", "FAW AMI", "CHANGFENG", "SKYGO", "FERRELAMINAS",
+       "INDUGWEST", "ANDITRAILERS", "INDUREMOLQUES", "TRAILERS SUPERIOR",
+       "EQUITRAILER", "BAYONA TRAILER", "FULL TRAILER", "GUZI", "STEYR",
+       "SHUANGHUAN", "HONGXING", "MUDAN", "CARROCERIAS JAGUER",
+       "TECNITANQUES", "TODOTRAILERS", "ZONGSHEN", "DITE", "RANDON",
+       "INDUVOLCOS", "TX MOTORS", "OXITANQUES", "TALLERES CEPEDA",
+       "MULTITRAILERS", "EUROSTAR D`LONG", "EAGLE CARGO", "SER REMOLQUES",
+       "INSAR", "TRAILERS DE LA SABANA", "TRAILERS HERCULES",
+       "SERVITRAILER", "REPATRAILERSVAN", "SAN MARCOS", "CAPRI", "TVS",
+       "COLTRAILER", "EL CHINO BERNA", "LOHR", "TECNITRACS", "POLARIS",
+       "CILINDRAULICOS", "METALLICA", "UFO", "MACTRAILERS", "DORSEY",
+       "GONOW", "ONEIDA", "RODRIREMOLQUES", "ATM", "VOLCOS UFF", "FMI",
+       "APOLO", "CONSTRUTANQUES", "BAW", "VYR CARVAJAL", "CONALCAR",
+       "GREMCAR", "TRAILERS & TRAILERS", "INDUCAPI", "TECNISANDER",
+       "JINBEI", "CONTAPA", "GESMET", "EL ABARCO", "SOYAT",
+       "TECNITRAILER", "ZHONGNENG", "SATURN", "TEMPEST", "TECNITRAILERS",
+       "TALLERES PACHON", "LA QUINTA RUEDA", "GAS GAS", "PASSAGGIO",
+       "UKM", "SACHS", "YUTONG", "SG INGENIERIA", "NON PLUS ULTRA",
+       "VESPA", "EUROPAMOTOS", "SYM", "CYAN", "ACURA", "LEXUS", "AG",
+       "SINOTRUK", "FONTAINE", "FRANCOCOL", "BRONTO", "SMC", "HUSQVARNA",
+       "TMD", "LANDWIND", "PROCEIN", "ROVER", "MASERATI", "ALFA ROMEO",
+       "YAKEY", "FERRARI", "ROYAL ENFIELD","AMERICAN TRAYLER", "GMC",
+       "YAXING", "SCION", "AVA", "TRIUMPH", "T-KING", "HAIMA", "ZNA",
+       "HUANGHAI", "MAHINDRA", "HAOJIANG", "LINCOLN", "HUALIN",
+       "ARCTIC CAT", "DADI", "BENELLI", "CARMEX", "MOTO ABC",
+       "BRILLIANCE", "LML", "JOYLONG", "CIMC", "MAXUS", "INCOLTANQUES",
+       "DFAC", "SMART", "MV AGUSTA", "BAIC", "LMX", "CHANGAN", "DONGBEN",
+       "YUEJIN-NAVECO", "HERO", "VICTORY", "VAISAND", "FUSO", "DAF",
+       "STÄRKER", "SCOMADI", "HAOJUE", "DS"])
+#print(df.groupby(['Fruit'])['Sale'].agg('sum'))                 
 st.markdown("Figura 2")
-def graficoValor(datos):
-    fig = px.histogram(
-        datos["Marca"],
-        x ="Marca",
+def graficoValor(data,s: str):
+    fig = px.bar(
+        datos.groupby(datos['Marca']==s)
+        .sum()
+        .reset_index()
+        .sort_values(by='valor_modelo'),
+        x = "Marca",
+        y ="valor_modelo",
         color_discrete_sequence=["violet"]
     )
     return fig
-varfig = graficoValor(datos)
-st.plotly_chart( 
-    varfig , 
+varfig = graficoValor(datos,M)
+st.plotly_chart(
+    varfig, 
     use_container_width=True,  
 )
-st.markdown("La marca chevrolet es la que mas tiene presencia en la totalidad de vehiculos")
+st.markdown("En el anterior grafico podemos ver los valores por marcas para todas las referencias, con respecto a los otros vehiculos")
 st.markdown("---")
 def comparadorModelos (df, valor: int):
     df = datos[(datos['Fechas'] == valor)]
