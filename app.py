@@ -240,7 +240,7 @@ M = st.selectbox(
 st.markdown("Figura 2")
 def graficoValor(data,s: str):
     fig = px.bar(
-        datos.groupby(datos['Marca']==s)
+        datos[datos['Marca']==s].groupby(by=['Marca'])
         .sum()
         .reset_index()
         .sort_values(by='valor_modelo'),
@@ -254,7 +254,7 @@ st.plotly_chart(
     varfig, 
     use_container_width=True,  
 )
-st.markdown("En el anterior grafico podemos ver los valores por marcas para todas las referencias, con respecto a los otros vehiculos")
+st.markdown("En el gráfico anterior se puede contemplar el valor o precio de todas las marcas, independientemente de la clase del vehículo, dando una referencia a que marcas pueden salir más costosas al momento de comprar un vehículo.")
 st.markdown("---")
 def comparadorModelos (df, valor: int):
     df = datos[(datos['Fechas'] == valor)]
