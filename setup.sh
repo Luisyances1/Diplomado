@@ -2,7 +2,7 @@ mkdir -p ~/.streamlit/
 echo  "
 [theme]
 base='dark'
-primaryColor='#021066'
+primaryColor='#01106e'
 secondaryBackgroundColor='#05389e'
 font='timenewsromans'
 [server]
